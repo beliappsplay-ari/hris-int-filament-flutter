@@ -1,0 +1,133 @@
+<x-filament-panels::page>
+{{$payroll}}
+
+
+
+<div>
+                <div class="border border-2 bg-white shadow rounded-lg p-6 max-w-4xl mx-auto">
+                    <!-- header -->
+                    <div class="items-center border-b pb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-700 text-center">Slip Gaji</h3>
+
+                        </div>
+                    </div>
+
+                        <div class="border-b pb-4">
+                        <table class="w-full mt-6">
+                            <thead>
+                                <tr>
+                                    <th class="p-2 text-left ">Empno: {{$payroll->empno}}</th>
+                                    <th class="p-2 text-left ">Tax Status : TK0</th>
+                                    <th class="p-2 text-left">{{$payroll->period}}</th>
+                                </tr>
+                                <tr>
+                                    <th class="p-2 text-left ">Nama: {{$payroll->fullname}}</th>
+                                    <th class="p-2 text-left ">PC : {{$payroll->pc}}</th>
+                                    <th class="p-2 text-left">Jamsostek No : 3123123123213</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        </div>
+
+
+                        <style>
+.table_component {
+    overflow: auto;
+    width: 100%;
+}
+
+.table_component table {
+    border: 1px solid #dededf;
+    height: 100%;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 1px;
+    text-align: left;
+}
+
+.table_component caption {
+    caption-side: top;
+    text-align: left;
+}
+
+.table_component th {
+    border: 1px solid #ffffff;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 5px;
+}
+
+.table_component td {
+    border: 1px solid #ffffff;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 3px;
+}
+</style>
+<div class="table_component" role="region" tabindex="0">
+<table>
+    <thead>
+        <tr>
+            <th>Income</th>
+            <th></th>
+            <th>Deduct</th>
+            <th></th>
+            <th>Accumulation</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="font-size: 15px;">Gaji Pokok</td>
+            <td align ="right">{{$payroll->basicsalary}}</td>
+            <td>Pajak</td>
+            <td align ="right">{{$payroll->taxamonth}}</td>
+            <td>Basicsalary</td>
+            <td align ="right">{{$payroll->akum_basicsalary + $payroll->basicsalary}}</td>
+        </tr>
+        @if($payroll->transport > 0)
+        <tr>
+            <td style="font-size: 15px;">Tunj. Kehadiran</td>
+            <td align ="right">{{$payroll->transport}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        @endif
+        <tr>
+            <td style="font-size: 15px;">Tunj. Makan</td>
+            <td align ="right">@currency($payroll->meal)</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+        @if($payroll->overtime>'0')
+            <td style="font-size: 15px;">Overtime</td>
+            <td align ="right">@currency($payroll->overtime)</td>
+            @else
+            <td style="font-size: 15px;"></td>
+            <td align ="right"></td>
+            @endif
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+    </tbody>
+</table>
+</div>
+
+                </div>
+
+</div>
+
+
+
+
+</x-filament-panels::page>
