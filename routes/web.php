@@ -105,6 +105,66 @@ Route::group(['prefix' => 'api'], function () {
             ], 500);
         }
     });
+
+
+    // Tambahkan ini di web.php setelah login route
+
+Route::post('/register', function (Request $request) {
+    try {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'empno' => 'required|string|max:50|unique:employees,empno',
+        ]);
+
+        // Create user
+        $user = \App\Models\User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => \Hash::make($validatedData['password']),
+        ]);
+
+        // Create employee record
+        $employee = \App\Models\Employee::create([
+            'empno' => $validatedData['empno'],
+            'fullname' => $validatedData['name'],
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration successful! Please login with your credentials.',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ],
+                'employee' => [
+                    'id' => $employee->id,
+                    'empno' => $employee->empno,
+                    'fullname' => $employee->fullname,
+                ]
+            ]
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+        
+    } catch (\Exception $e) {
+        \Log::error('Registration error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
     
     // Protected routes - MIDDLEWARE AUTH SANCTUM
     Route::group(['middleware' => 'auth:sanctum'], function () {
