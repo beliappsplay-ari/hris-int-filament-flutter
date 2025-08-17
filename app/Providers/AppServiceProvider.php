@@ -27,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
             ->setRoleClass(Role::class);
 
         Blade::directive('currency', function ( $expression ) { return "<?php echo number_format($expression,0,',','.'); ?>"; });
-
+         Blade::directive('currency', function ($amount) {
+        return "<?php echo 'Rp ' . number_format($amount ?? 0, 0, ',', '.'); ?>";
+         });
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 //use App\Http\Controllers\EmpMasterController;
+use App\Http\Controllers\Api\PayrollApiController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -140,6 +141,14 @@ Route::group(['prefix' => 'api'], function () {
             }
         });
         
+        Route::prefix('salary-slips')->group(function () {
+    Route::get('/', [PayrollApiController::class, 'index']);
+    Route::get('/{id}', [PayrollApiController::class, 'show']);
+    Route::get('/{id}/pdf', [PayrollApiController::class, 'downloadPdf'])->name('api.salary-slips.pdf');
+        });
+
+
+
         Route::post('/logout', function (Request $request) {
             try {
                 $request->user()->currentAccessToken()->delete();
