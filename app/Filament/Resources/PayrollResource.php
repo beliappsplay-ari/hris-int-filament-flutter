@@ -46,11 +46,24 @@ class PayrollResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make("view_slip")
-                    ->label('View Slip')
-                    ->icon('heroicon-o-document-text')
-                    ->url(fn($record) => self::getUrl("slip", ['record' => $record->id])),
+               Tables\Actions\EditAction::make(),
+    
+            Tables\Actions\Action::make("view_slip")
+            ->label('View Slip')
+                ->icon('heroicon-o-document-text')
+            ->url(fn($record) => self::getUrl("slip", ['record' => $record->id])),
+    
+         Tables\Actions\Action::make("download_slip")
+        ->label('Download PDF')  
+        ->icon('heroicon-o-document-arrow-down')
+        ->action(function ($record) {
+            $payroll = \App\Models\Payroll::with(['employee', 'user'])->find($record->id);
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payrolls.salary-slip', ['payroll' => $payroll]);
+            
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->stream();
+            }, 'salary-slip-' . $payroll->empno . '.pdf');
+        })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
