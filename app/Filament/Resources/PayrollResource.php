@@ -46,24 +46,27 @@ class PayrollResource extends Resource
                 //
             ])
             ->actions([
-               Tables\Actions\EditAction::make(),
+            //   Tables\Actions\EditAction::make(),
     
-            Tables\Actions\Action::make("view_slip")
-            ->label('View Slip')
+            // Action untuk view slip di tab baru - preview PDF
+            Tables\Actions\Action::make('salary_slip')
+                ->label('Salary Slip')
                 ->icon('heroicon-o-document-text')
-            ->url(fn($record) => self::getUrl("slip", ['record' => $record->id])),
+                ->url(fn ($record) => route('payroll.salary.slip', ['id' => $record->id]))
+                ->openUrlInNewTab(),
     
-         Tables\Actions\Action::make("download_slip")
-        ->label('Download PDF')  
-        ->icon('heroicon-o-document-arrow-down')
-        ->action(function ($record) {
-            $payroll = \App\Models\Payroll::with(['employee', 'user'])->find($record->id);
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payrolls.salary-slip', ['payroll' => $payroll]);
-            
-            return response()->streamDownload(function () use ($pdf) {
-                echo $pdf->stream();
-            }, 'salary-slip-' . $payroll->empno . '.pdf');
-        })
+            // Action untuk download PDF langsung
+            Tables\Actions\Action::make("download_slip")
+                ->label('Download PDF')  
+                ->icon('heroicon-o-document-arrow-down')
+                ->action(function ($record) {
+                    $payroll = \App\Models\Payroll::with(['employee', 'user'])->find($record->id);
+                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payrolls.salary-slip', ['payroll' => $payroll]);
+                    
+                    return response()->streamDownload(function () use ($pdf) {
+                        echo $pdf->stream();
+                    }, 'salary-slip-' . $payroll->empno . '.pdf');
+                })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -1,38 +1,38 @@
 <x-filament-panels::page>
-    @if($this->payroll)
+    @if($payroll)
     
     {{-- PDF-like Layout --}}
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden" style="max-width: 900px; margin: 0 auto;">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mx-auto" style="max-width: 900px;">
         
-        {{-- Header with Logo & Title (sama seperti PDF) --}}
+        {{-- Header with Logo & Title --}}
         <div class="text-center py-6 border-b-2 border-gray-300">
             <div class="text-2xl font-bold text-blue-600 mb-1">DGE</div>
             <div class="text-sm text-blue-500 mb-4">PT Dian Graha Elektrika</div>
             <h1 class="text-xl font-semibold text-gray-900">PAY SLIP</h1>
         </div>
 
-        {{-- Employee Info Section (3 columns seperti PDF) --}}
+        {{-- Employee Info Section --}}
         <div class="p-6">
             {{-- Row 1 --}}
-            <div class="grid grid-cols-3 gap-6 mb-4 pb-4">
+            <div class="grid grid-cols-3 gap-6 mb-4 pb-4 text-sm">
                 <div>
                     <span class="font-bold text-gray-900">Empno : </span>
-                    <span class="font-normal">{{ $this->payroll->empno }}</span>
+                    <span class="font-normal">{{ $payroll->empno }}</span>
                 </div>
                 <div>
                     <span class="font-bold text-gray-900">Tax Status : </span>
                     <span class="font-normal">K1</span>
                 </div>
                 <div class="text-left">
-                    <span class="font-bold text-gray-900">{{ $this->payroll->formatted_period }}</span>
+                    <span class="font-bold text-gray-900">{{ $payroll->formatted_period ?? 'July 2025' }}</span>
                 </div>
             </div>
             
             {{-- Row 2 --}}
-            <div class="grid grid-cols-3 gap-6 mb-6 pb-4 border-b-2 border-gray-300">
+            <div class="grid grid-cols-3 gap-6 mb-6 pb-4 border-b-2 border-gray-300 text-sm">
                 <div>
                     <span class="font-bold text-gray-900">Fullname : </span>
-                    <span class="font-normal">{{ $this->payroll->employee->fullname ?? 'N/A' }}</span>
+                    <span class="font-normal">{{ $payroll->employee->fullname ?? 'N/A' }}</span>
                 </div>
                 <div>
                     <span class="font-bold text-gray-900">NPWP No : </span>
@@ -44,156 +44,193 @@
                 </div>
             </div>
 
-            {{-- Income, Deduction, Accumulation Table (sama persis seperti PDF) --}}
-            <div class="border border-gray-400">
+            {{-- Income, Deduction, Accumulation Table --}}
+            <div class="border border-gray-800">
                 {{-- Headers --}}
-                <div class="grid grid-cols-3 bg-gray-50 border-b border-gray-400">
-                    <div class="px-3 py-2 font-bold text-center border-r border-gray-400">INCOME</div>
-                    <div class="px-3 py-2 font-bold text-center border-r border-gray-400">DEDUCTION</div>
-                    <div class="px-3 py-2 font-bold text-center">ACCUMULATION</div>
+                <div class="grid grid-cols-3 bg-gray-50 border-b border-gray-800">
+                    <div class="px-3 py-2 font-bold text-left border-r border-gray-800">INCOME</div>
+                    <div class="px-3 py-2 font-bold text-left border-r border-gray-800">DEDUCTION</div>
+                    <div class="px-3 py-2 font-bold text-left">ACCUMULATION</div>
                 </div>
 
                 {{-- Content Rows --}}
-                <div class="grid grid-cols-3 min-h-96">
+                <div class="grid grid-cols-3" style="min-height: 300px;">
                     {{-- INCOME COLUMN --}}
-                    <div class="px-3 py-2 border-r border-gray-400">
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Basic Salary</span>
-                            <span class="text-sm">@currency($this->payroll->basicsalary)</span>
+                    <div class="px-3 py-2 border-r border-gray-800 text-xs">
+                        <div class="flex justify-between py-1">
+                            <span>Basic Salary</span>
+                            <span>{{ number_format($payroll->basicsalary ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Compensatory Day Off</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Compensatory Day Off</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Wee Hours</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Wee Hours</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Overtime</span>
-                            <span class="text-sm">@currency($this->payroll->overtime)</span>
+                        <div class="flex justify-between py-1">
+                            <span>Overtime</span>
+                            <span>{{ number_format($payroll->overtime ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">B.Trip Allowance</span>
-                            <span class="text-sm">@currency($this->payroll->transport)</span>
+                        <div class="flex justify-between py-1">
+                            <span>B.Trip Allowance</span>
+                            <span>{{ number_format($payroll->transport ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Shift Allowance</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Shift Allowance</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Others**</span>
-                            <span class="text-sm"></span>
+                        <div class="flex justify-between py-1">
+                            <span>Others**</span>
+                            <span></span>
                         </div>
                         
                         {{-- Dynamic Income Items --}}
-                        @if($this->payroll->meal > 0)
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Meal Allowance</span>
-                            <span class="text-sm">@currency($this->payroll->meal)</span>
+                        @if(($payroll->meal ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Meal Allowance</span>
+                            <span>{{ number_format($payroll->meal, 0, ',', '.') }}</span>
                         </div>
                         @endif
                         
-                        {{-- Spacer --}}
-                        <div class="py-2"></div>
+                        @if(($payroll->otherincome ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Other Income</span>
+                            <span>{{ number_format($payroll->otherincome, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
                         
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Premi-Health Insurance</span>
-                            <span class="text-sm">@currency($this->payroll->bpjsperusahaan)</span>
+                        @if(($payroll->medical ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Medical Allowance</span>
+                            <span>{{ number_format($payroll->medical, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        
+                        {{-- Spacer untuk align dengan PDF --}}
+                        <div style="height: 20px;"></div>
+                        
+                        <div class="flex justify-between py-1">
+                            <span>Premi-Health Insurance</span>
+                            <span>{{ number_format($payroll->bpjsperusahaan ?? 0, 0, ',', '.') }}</span>
                         </div>
                         
                         {{-- Total Income --}}
-                        <div class="flex justify-between py-2 border-t-2 border-gray-400 mt-3 font-bold">
-                            <span class="text-sm">TOTAL INCOME</span>
-                            <span class="text-sm">@currency($this->payroll->total)</span>
+                        <div class="flex justify-between py-2 border-t border-gray-800 mt-3 font-bold">
+                            <span>TOTAL INCOME</span>
+                            <span>{{ number_format($payroll->total ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
 
                     {{-- DEDUCTION COLUMN --}}
-                    <div class="px-3 py-2 border-r border-gray-400">
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Tax Income</span>
-                            <span class="text-sm">0</span>
+                    <div class="px-3 py-2 border-r border-gray-800 text-xs">
+                        <div class="flex justify-between py-1">
+                            <span>Tax Income</span>
+                            <span>{{ number_format($payroll->taxamonth ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Jamsostek</span>
-                            <span class="text-sm">@currency($this->payroll->jkm)</span>
+                        <div class="flex justify-between py-1">
+                            <span>Jamsostek</span>
+                            <span>{{ number_format($payroll->jkm ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Deduct Remark *)</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Deduct Remark *)</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">BPJS Pension</span>
-                            <span class="text-sm">@currency($this->payroll->jht)</span>
+                        <div class="flex justify-between py-1">
+                            <span>BPJS Pension</span>
+                            <span>{{ number_format($payroll->jht ?? 0, 0, ',', '.') }}</span>
                         </div>
                         
                         {{-- Dynamic Deduction Items --}}
-                        @if($this->payroll->personaladvance > 0)
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Personal Advance</span>
-                            <span class="text-sm">@currency($this->payroll->personaladvance)</span>
+                        @if(($payroll->personaladvance ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Personal Advance</span>
+                            <span>{{ number_format($payroll->personaladvance, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        
+                        @if(($payroll->koperasi ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Koperasi</span>
+                            <span>{{ number_format($payroll->koperasi, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        
+                        @if(($payroll->loancar ?? 0) > 0)
+                        <div class="flex justify-between py-1">
+                            <span>Loan Car</span>
+                            <span>{{ number_format($payroll->loancar, 0, ',', '.') }}</span>
                         </div>
                         @endif
                         
                         {{-- Spacer --}}
-                        <div class="py-2"></div>
+                        <div style="height: 20px;"></div>
                         
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">BPJS</span>
-                            <span class="text-sm">@currency($this->payroll->bpjskaryawan)</span>
+                        <div class="flex justify-between py-1">
+                            <span>BPJS</span>
+                            <span>{{ number_format($payroll->bpjskaryawan ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Premi-Health Insurance</span>
-                            <span class="text-sm">@currency($this->payroll->bpjsperusahaan)</span>
+                        <div class="flex justify-between py-1">
+                            <span>Premi-Health Insurance</span>
+                            <span>{{ number_format($payroll->bpjsperusahaan ?? 0, 0, ',', '.') }}</span>
                         </div>
                         
                         {{-- Total Deduction --}}
-                        <div class="flex justify-between py-2 border-t-2 border-gray-400 mt-3 font-bold">
-                            <span class="text-sm">TOTAL DEDUCTION</span>
-                            <span class="text-sm">@currency($this->payroll->jkm + $this->payroll->jht + $this->payroll->bpjskaryawan + $this->payroll->bpjsperusahaan + $this->payroll->personaladvance)</span>
+                        <div class="flex justify-between py-2 border-t border-gray-800 mt-3 font-bold">
+                            <span>TOTAL DEDUCTION</span>
+                            <span>{{ number_format(
+                                ($payroll->taxamonth ?? 0) + 
+                                ($payroll->jkm ?? 0) + 
+                                ($payroll->jht ?? 0) + 
+                                ($payroll->bpjskaryawan ?? 0) + 
+                                ($payroll->bpjsperusahaan ?? 0) + 
+                                ($payroll->personaladvance ?? 0) + 
+                                ($payroll->koperasi ?? 0) + 
+                                ($payroll->loancar ?? 0), 
+                                0, ',', '.') }}</span>
                         </div>
                     </div>
 
                     {{-- ACCUMULATION COLUMN --}}
-                    <div class="px-3 py-2">
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Basic Salary</span>
-                            <span class="text-sm">@currency($this->payroll->basicsalary)</span>
+                    <div class="px-3 py-2 text-xs">
+                        <div class="flex justify-between py-1">
+                            <span>Basic Salary</span>
+                            <span>{{ number_format($payroll->basicsalary ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Compensatory Day Off</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Compensatory Day Off</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Wee Hours</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Wee Hours</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm"></span>
-                            <span class="text-sm"></span>
+                        <div class="flex justify-between py-1">
+                            <span></span>
+                            <span></span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">B.Trip Allowance</span>
-                            <span class="text-sm">@currency($this->payroll->transport)</span>
+                        <div class="flex justify-between py-1">
+                            <span>B.Trip Allowance</span>
+                            <span>{{ number_format($payroll->transport ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm">Shift Allowance</span>
-                            <span class="text-sm">0</span>
+                        <div class="flex justify-between py-1">
+                            <span>Shift Allowance</span>
+                            <span>0</span>
                         </div>
-                        <div class="flex justify-between py-1 border-b border-dotted border-gray-300">
-                            <span class="text-sm"></span>
-                            <span class="text-sm"></span>
+                        <div class="flex justify-between py-1">
+                            <span></span>
+                            <span></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Take Home Pay Row (sama seperti PDF) --}}
-            <div class="border-l border-r border-b border-gray-400">
+            {{-- Take Home Pay Row --}}
+            <div class="border-l border-r border-b border-gray-800">
                 <div class="grid grid-cols-6 py-3 bg-gray-50">
                     <div class="px-3 font-bold">TAKE HOME PAY</div>
-                    <div class="px-3 font-bold text-right">@currency($this->payroll->thp)</div>
+                    <div class="px-3 font-bold text-right">{{ number_format($payroll->thp ?? 0, 0, ',', '.') }}</div>
                     <div></div>
                     <div></div>
                     <div class="px-3 font-bold text-right col-span-2">Outstanding Leave = 0</div>
@@ -236,7 +273,12 @@
     @else
     <div class="bg-red-50 border border-red-200 rounded-lg p-6">
         <p class="text-red-800">Payroll data not found or failed to load.</p>
-        <p class="text-red-600 text-sm mt-2">Record ID: {{ $this->record ?? 'Unknown' }}</p>
+        <p class="text-red-600 text-sm mt-2">Record ID: {{ $record ?? 'Unknown' }}</p>
+        <div class="mt-4">
+            <a href="{{ route('filament.admin.resources.payrolls.index') }}" class="text-blue-600 hover:text-blue-800">
+                ← Back to Payrolls
+            </a>
+        </div>
     </div>
     @endif
 </x-filament-panels::page>

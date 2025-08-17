@@ -15,6 +15,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+// Route untuk Salary Slip PDF preview - buka di tab baru (menggunakan closure)
+Route::get('/payroll/{id}/salary-slip', function ($id) {
+    // Manual find payroll
+    $payroll = \App\Models\Payroll::with(['employee', 'user'])->findOrFail($id);
+    
+    // Generate PDF
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payrolls.salary-slip', ['payroll' => $payroll]);
+    
+    // Return PDF untuk preview di browser (inline)
+    return response($pdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="salary-slip-' . $payroll->empno . '.pdf"');
+})->name('payroll.salary.slip');
+
 /*
 |--------------------------------------------------------------------------
 | Employee Management Routes

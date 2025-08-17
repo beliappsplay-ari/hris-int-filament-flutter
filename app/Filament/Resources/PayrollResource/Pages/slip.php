@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Filament\Resources\PayrollResource\Pages;
 
 use App\Filament\Resources\PayrollResource;
-use Filament\Resources\Pages\Page;
 use App\Models\Payroll;
+use Filament\Resources\Pages\Page;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class slip extends Page
+class Slip extends Page
 {
     protected static string $resource = PayrollResource::class;
     protected static string $view = 'filament.resources.payroll-resource.pages.slip';
@@ -14,40 +15,41 @@ class slip extends Page
     public $record;
     public $payroll;
 
-    public function mount($record)
+    public function mount($record): void
     {
         $this->record = $record;
-        // Load payroll dengan employee data
         $this->payroll = Payroll::with(['employee', 'user'])->find($record);
         
-        // Debug: pastikan data loaded
         if (!$this->payroll) {
-            abort(404, 'Payroll not found');
+            abort(404, 'Payroll record not found');
         }
     }
 
-    // Method untuk download PDF
-    public function downloadPdf()
+    public function viewPdf()
     {
-        $pdf = Pdf::loadView('payrolls.salary-slip', [
-            'payroll' => $this->payroll
-        ]);
+        $payroll = $this->payroll;
+        $pdf = Pdf::loadView('payrolls.salary-slip', compact('payroll'));
         
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
-        }, 'salary-slip-' . $this->payroll->empno . '-' . $this->payroll->period . '.pdf');
+        }, 'salary-slip-' . $payroll->empno . '.pdf', [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="salary-slip-' . $payroll->empno . '.pdf"'
+        ]);
     }
 
-    // Method untuk view PDF di browser
-    public function viewPdf()
+    public function downloadPdf()
     {
-        $pdf = Pdf::loadView('payrolls.salary-slip', [
-            'payroll' => $this->payroll
-        ]);
+        $payroll = $this->payroll;
+        $pdf = Pdf::loadView('payrolls.salary-slip', compact('payroll'));
         
-        return response($pdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="salary-slip-' . $this->payroll->empno . '.pdf"'
-        ]);
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'salary-slip-' . $payroll->empno . '.pdf');
+    }
+
+    public function getTitle(): string
+    {
+        return 'Salary Slip - ' . ($this->payroll->employee->fullname ?? $this->payroll->empno ?? 'Unknown');
     }
 }
