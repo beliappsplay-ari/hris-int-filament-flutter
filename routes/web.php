@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AuthController;
+//use App\Http\Controllers\EmpMasterController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,17 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - Integrated with Laravel Auth
+| Employee Management Routes
+|--------------------------------------------------------------------------
+*/
+/*
+Route::prefix('hris')->group(function () {
+    Route::resource('emp-masters', EmpMasterController::class);
+});
+*/
+/*
+|--------------------------------------------------------------------------
+| API Routes
 |--------------------------------------------------------------------------
 */
 
@@ -34,66 +45,100 @@ Route::group(['prefix' => 'api'], function () {
     
     // Login route tanpa CSRF check
     Route::post('/login', function (Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            
-            // Hapus token lama
-            $user->tokens()->delete();
-            
-            // Buat token baru
-            $token = $user->createToken('authToken')->plainTextToken;
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                
+                // Hapus token lama
+                $user->tokens()->delete();
+                
+                // Buat token baru
+                $token = $user->createToken('authToken')->plainTextToken;
 
-            // Load employee data jika ada
-            $user->load('employee');
+                // Load employee data dengan safe loading
+                try {
+                    $user->load('employee');
+                } catch (\Exception $e) {
+                    \Log::info('Failed to load employee: ' . $e->getMessage());
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'data' => [
+                        'user' => $user,
+                        'token' => $token,
+                    ]
+                ]);
+            }
 
             return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'data' => [
-                    'user' => $user,
-                    'token' => $token,
-                ]
-            ]);
+                'success' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login error: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid credentials'
-        ], 401);
-    })->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    });
     
-    // Protected routes
-    Route::middleware('auth:sanctum')->group(function () {
+    // Protected routes - MIDDLEWARE AUTH SANCTUM
+    Route::group(['middleware' => 'auth:sanctum'], function () {
         
+        // ME endpoint - PENTING!
         Route::get('/me', function (Request $request) {
-            $user = $request->user()->load('employee');
-            return response()->json([
-                'success' => true,
-                'data' => $user
-            ]);
+            try {
+                $user = $request->user();
+                
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User not found'
+                    ], 401);
+                }
+                
+                // Load employee data dengan safe loading
+                try {
+                    $user->load('employee');
+                } catch (\Exception $e) {
+                    \Log::info('Failed to load employee: ' . $e->getMessage());
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'data' => $user
+                ]);
+                
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error getting user: ' . $e->getMessage()
+                ], 500);
+            }
         });
         
         Route::post('/logout', function (Request $request) {
-            $request->user()->currentAccessToken()->delete();
-            return response()->json([
-                'success' => true,
-                'message' => 'Logout successful'
-            ]);
+            try {
+                $request->user()->currentAccessToken()->delete();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Logout successful'
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Logout error: ' . $e->getMessage()
+                ], 500);
+            }
         });
         
-        Route::get('/user', function (Request $request) {
-            return response()->json([
-                'success' => true,
-                'data' => $request->user()->load('employee')
-            ]);
-        });
     });
 });
-
-// Import Auth facade
-use Illuminate\Support\Facades\Auth;
