@@ -46,6 +46,14 @@ class ListPayrolls extends ListRecords
     protected function getTableQuery(): Builder
     {
      return payroll::where('users_id', Auth::user()->id);
+       dd([
+            'SQL' => $query->toSql(),
+            'Bindings' => $query->getBindings(),
+            'User ID' => Auth::user()->id,
+            'Full Query' => vsprintf(str_replace('?', "'%s'", $query->toSql()), $query->getBindings())
+        ]);
+        
+        return $query;
    }
 
 }
