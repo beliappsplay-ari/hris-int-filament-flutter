@@ -12,15 +12,11 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
-    public function employee()
-    {
-        return $this->hasOne(emp_master::class);
-    }
-
     protected $fillable = [
         'name',
         'email',
         'password',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -34,5 +30,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the employee record associated with the user.
+     */
+    public function employee()
+    {
+        return $this->hasOne(emp_master::class);
     }
 }
