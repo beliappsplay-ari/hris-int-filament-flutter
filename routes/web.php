@@ -12,10 +12,22 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 /*
+/*
 |--------------------------------------------------------------------------
-| Web Routes
+| API Routes
 |--------------------------------------------------------------------------
 */
+
+Route::group(['prefix' => 'api'], function () {
+    
+    // FLUTTER MENU ACCESS - Route khusus untuk Flutter (tidak mengganggu web)
+    Route::get('/flutter/menu-access', [TimesheetController::class, 'getUserMenuAccess'])->middleware('auth:sanctum');
+
+    // Test route
+    Route::get('/test', function () {
+        return response()->json(['message' => 'API is working!']);
+    });
+});
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,6 +55,13 @@ Route::get('/payroll/view-pdf/{empno}/{period}', function ($empno, $period) {
 // Debug routes untuk testing - REMOVE SETELAH TESTING
 Route::get('/debug/timesheet-pdf/{period}', [TimesheetController::class, 'debugPdfExtraction']);
 Route::get('/debug/timesheet-extract/{period}', [TimesheetController::class, 'extractPagePdf']);
+Route::get('/debug/employees', [TimesheetController::class, 'getTimesheetEmployees']);
+Route::get('/debug/employees-without-timesheet', [TimesheetController::class, 'getEmployeesWithoutTimesheet']);
+Route::get('/debug/test-employee/{empno}', [TimesheetController::class, 'testEmployeeValidation']);
+Route::get('/debug/user-menu-access', [TimesheetController::class, 'getUserMenuAccess']);
+
+// FLUTTER MOBILE ROUTES - Route khusus untuk aplikasi Flutter mobile
+Route::get('/flutter/user/menu-access', [TimesheetController::class, 'getUserMenuAccess'])->middleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +80,9 @@ Route::group(['prefix' => 'api'], function () {
             'database' => 'Connected to: ' . config('database.default')
         ]);
     });
+
+    // FLUTTER MENU ACCESS - Route khusus untuk Flutter mobile (tidak mengganggu web)
+    Route::get('/flutter/menu-access', [TimesheetController::class, 'getUserMenuAccess'])->middleware('auth:sanctum');
 
     // REGISTER route - SAFE IMPLEMENTATION (replace existing register route)
     Route::post('/register', function (Request $request) {
@@ -721,6 +743,9 @@ Route::group(['prefix' => 'api'], function () {
         // TIMESHEET ROUTES - UPDATED untuk public/assets/timesheet
         // ============================================================================
         
+        // ✅ COMPATIBILITY: Main timesheet endpoint untuk existing frontend
+        Route::get('/timesheet', [TimesheetController::class, 'getAvailablePeriods']);
+        
         Route::prefix('timesheet')->group(function () {
             
             // ========================================
@@ -740,10 +765,22 @@ Route::group(['prefix' => 'api'], function () {
             Route::get('/periods-filtered', [TimesheetController::class, 'getAvailablePeriodsFiltered']);
             
             /**
-             * ✅ NEW: Get list of employees yang memiliki timesheet
+             * ✅ UPDATED: Get list of employees yang memiliki timesheet (dynamic from emp_masters)
              * GET /api/timesheet/employees
              */
             Route::get('/employees', [TimesheetController::class, 'getTimesheetEmployees']);
+            
+            /**
+             * ✅ NEW: Get employees yang ada di database tapi tidak ada timesheet
+             * GET /api/timesheet/employees/without-timesheet
+             */
+            Route::get('/employees/without-timesheet', [TimesheetController::class, 'getEmployeesWithoutTimesheet']);
+            
+            /**
+             * ✅ NEW: Get user menu access berdasarkan emp_masters.akses field
+             * GET /api/user/menu-access
+             */
+            Route::get('/user/menu-access', [TimesheetController::class, 'getUserMenuAccess']);
             
             /**
              * Extract employee page from timesheet PDF
