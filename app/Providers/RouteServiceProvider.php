@@ -29,9 +29,14 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // Route::middleware('api')
+            //     ->prefix('api')
+            //     ->group(base_path('routes/api.php'));
+
+            // Flutter Mobile API Routes - Separate from web routes
             Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+                ->prefix('api/flutter')
+                ->group(base_path('routes/flutter.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

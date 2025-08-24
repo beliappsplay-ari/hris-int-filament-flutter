@@ -37,9 +37,6 @@ class PayrollResource extends Resource
                 TextColumn::make('fullname')->label('Name')->searchable()->sortable(),
                 TextColumn::make('period')->label('Period')->searchable()->sortable(),
                 TextColumn::make('basicsalary')->sortable()->money('IDR'),
-                TextColumn::make('transport')->sortable()->money('IDR'),
-                TextColumn::make('meal')->sortable()->money('IDR'),
-                TextColumn::make('overtime')->sortable()->money('IDR'),
                 TextColumn::make('total')->sortable()->money('IDR'),
             ])
             ->filters([
@@ -54,6 +51,16 @@ class PayrollResource extends Resource
                 ->icon('heroicon-o-document-text')
                 ->url(fn ($record) => route('payroll.salary.slip', ['id' => $record->id]))
                 ->openUrlInNewTab(),
+
+Tables\Actions\Action::make('view_pdf_slip')
+        ->label('View PDF')
+        ->icon('heroicon-o-eye')
+        ->url(fn ($record) => route('payroll.view.pdf', [
+            'empno' => $record->empno, 
+            'period' => $record->period
+        ]))
+        ->openUrlInNewTab(),
+
     
             // Action untuk download PDF langsung
             Tables\Actions\Action::make("download_slip")
